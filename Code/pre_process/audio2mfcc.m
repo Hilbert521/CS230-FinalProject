@@ -1,4 +1,5 @@
 % Script for converting .mp3 files to X and Y matrices
+% NOTE: I had to make some changes to accoutn for my old version of matlab
 
 clear
 close all
