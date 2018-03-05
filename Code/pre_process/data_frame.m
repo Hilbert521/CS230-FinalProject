@@ -1,4 +1,4 @@
-function X_framed = data_frame(X, stride, win_per_frame)
+function X_framed = data_frame(X, stride, framesPerWindow)
 
 % splits data into windows according to the Ge paper
 
@@ -10,18 +10,19 @@ function X_framed = data_frame(X, stride, win_per_frame)
 % output:
 % X_framed, mfcc's of audio data split into frames 
 
-num_win = length(X(:,1));
+numFrames = size(X, 1);
+numFeatures = size(X, 2);
 
-m = floor((num_win-win_per_frame)/stride);
-X_framed = zeros(m, length(X(1,:))*win_per_frame);
+m = floor((numFrames - framesPerWindow)/stride);
+X_framed = zeros(m, numFeatures*framesPerWindow);
 
 for ii = 1:m
     
-    ind_start = (ii-1)*stride+1;
-    ind_end = ind_start+win_per_frame-1;
+    ind_start = (ii - 1)*stride + 1;
+    ind_end = ind_start + framesPerWindow - 1;
     
     sect = X(ind_start:ind_end, :);
-    X_framed(ii,:) = reshape(sect',1,[]);
+    X_framed(ii, :) = reshape(sect', 1, []);
     
 end
 
