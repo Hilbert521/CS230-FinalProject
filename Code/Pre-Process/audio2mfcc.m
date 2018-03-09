@@ -5,9 +5,9 @@ clc
 
 % User inputs:
 % Flags
-writeVoicedData = true;     % Write the VAD-processed speech to .wav files
-writeAllMFCCData = true;    % Write all MFCC data for each audio file to .csv
-writeShuffledSets = true;   % Write the train, dev, and test sets to .csv
+writeVoicedData = false;     % Write the VAD-processed speech to .wav files
+writeAllMFCCData = false;    % Write all MFCC data for each audio file to .csv
+writeShuffledSets = false;   % Write the train, dev, and test sets to .csv
 
 % Pre-processing hyperparameters
 frame_size_ms = 10; %window length
@@ -56,6 +56,9 @@ for ii = 1:length(folderConts)
         
         % Process only the voiced data from the raw audio
         [voicedSig, Fs] = data_load_trim(fullfile(rawAudioFolder, audioFile.name));
+        
+        % Set max amplitude to 1
+        voicedSig = voicedSig/(max(abs(voicedSig)));
         
         % Save the voiced data for reference
         if writeVoicedData
