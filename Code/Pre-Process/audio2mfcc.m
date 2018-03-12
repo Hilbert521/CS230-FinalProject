@@ -8,6 +8,7 @@ clc
 writeVoicedData = false;     % Write the VAD-processed speech to .wav files
 writeAllMFCCData = false;    % Write all MFCC data for each audio file to .csv
 writeShuffledSets = false;   % Write the train, dev, and test sets to .csv
+useMFCCDeltas = true;        % Include MFCC deltas in feature set
 
 % Pre-processing hyperparameters
 frame_size_ms = 10; %window length
@@ -55,7 +56,7 @@ for ii = 1:length(folderConts)
         class = str2double(classStr);
         
         % Process only the voiced data from the raw audio
-        [voicedSig, Fs] = data_load_trim(fullfile(rawAudioFolder, audioFile.name));
+        [voicedSig, Fs] = data_load_trim(fullfile(rawAudioFolder, audioFile.name), 10);
         
         % Set max amplitude to 1
         voicedSig = voicedSig/(max(abs(voicedSig)));
@@ -71,8 +72,21 @@ for ii = 1:length(folderConts)
             % Extract MFCCs
             X = kannumfcc(13, voicedSig, Fs, frame_size_ms);
             
+            if useMFCCDeltas
+                % Generate deltas and double-deltas
+                d1 = mfccDeltas(X, 2);
+                d2 = mfccDeltas(d1, 2);
+                
+                X = [X, d1, d2];
+            end
+            
             % Re-structure data to account for overlapping frames
             X = data_frame(X, frame_stride, frames_per_window);
+            
+            % Implement mean/variance normalization
+            meanX = mean(X, 1);
+            varX = var(X, 0, 1);
+            X = (X - meanX)./sqrt(varX);
             
             % Generate the corresponding Y matrix
             Y = zeros(size(X, 1), 2);
