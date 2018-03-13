@@ -1,4 +1,4 @@
-function [segments, fs] = detectVoiced(wavFileName,t)
+function [segments, fs] = detectVoiced(wavFileName, threshold, t)
 
 % 
 % function [segments, fs] = detectVoiced(wavFileName)
@@ -13,6 +13,7 @@ function [segments, fs] = detectVoiced(wavFileName,t)
 %
 % ARGUMENTS:
 %  - wavFileName: the path of the wav file to be analyzed
+%  - threshold: parameter for energy thresholds (default = 0.2)
 %  - t: if provided, the detected voiced segments are played and some
 %  intermediate results are also ploted
 % 
@@ -27,7 +28,10 @@ function [segments, fs] = detectVoiced(wavFileName,t)
 % [segments, fs] = detectVoiced('example.wav',1);
 %
 
-
+% Check if the threshold was provided
+if ~exist('threshold', 'var')
+    threshold = 1/5;
+end
 
 % Check if the given wav file exists:
 fp = fopen(wavFileName, 'rb');
@@ -53,7 +57,8 @@ step = 0.050;
 %  THRESHOLD ESTIMATION
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Weight = 5; % used in the threshold estimation method
+% Weight = 5; % used in the threshold estimation method
+Weight = 1/threshold;
 
 % Compute short-time energy and spectral centroid of the signal:
 Eor = ShortTimeEnergy(x, win*fs, step*fs);
@@ -91,7 +96,7 @@ Flags1 = (E>=T_E);
 Flags2 = (C>=T_C);
 flags = Flags1 & Flags2;
 
-if (nargin==2) % plot results:
+if (nargin==3) % plot results:
 	clf;
 	subplot(3,1,1); plot(Eor, 'g'); hold on; plot(E, 'c'); legend({'Short time energy (original)', 'Short time energy (filtered)'});
     L = line([0 length(E)],[T_E T_E]); set(L,'Color',[0 0 0]); set(L, 'LineWidth', 2);
@@ -159,7 +164,7 @@ for (i=1:size(Limits,1))
     segments{end+1} = x(Limits(i,1):Limits(i,2)); 
 end
 
-if (nargin==2) 
+if (nargin==3) 
     subplot(3,1,3);
     % Plot results and play segments:
     time = 0:1/fs:(length(x)-1) / fs;
