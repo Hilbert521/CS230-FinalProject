@@ -4,7 +4,7 @@ close all
 clc
 
 % User inputs:
-numClasses = 2; % Manually indicate the number of speakers
+numClasses = 17; % Manually indicate the number of speakers
 
 % Flags
 writeVoicedData = false;     % Write the VAD-processed speech to .wav files
