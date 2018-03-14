@@ -4,10 +4,12 @@ close all
 clc
 
 % User inputs:
+numClasses = 2; % Manually indicate the number of speakers
+
 % Flags
 writeVoicedData = false;     % Write the VAD-processed speech to .wav files
 writeAllMFCCData = false;    % Write all MFCC data for each audio file to .csv
-writeShuffledSets = false;   % Write the train, dev, and test sets to .csv
+writeShuffledSets = true;   % Write the train, dev, and test sets to .csv
 useMFCCDeltas = true;        % Include MFCC deltas in feature set
 
 % Pre-processing hyperparameters
@@ -56,7 +58,7 @@ for ii = 1:length(folderConts)
         class = str2double(classStr);
         
         % Process only the voiced data from the raw audio
-        [voicedSig, Fs] = data_load_trim(fullfile(rawAudioFolder, audioFile.name), 10);
+        [voicedSig, Fs] = data_load_trim(fullfile(rawAudioFolder, audioFile.name));
         
         % Set max amplitude to 1
         voicedSig = voicedSig/(max(abs(voicedSig)));
@@ -89,7 +91,7 @@ for ii = 1:length(folderConts)
             X = (X - meanX)./sqrt(varX);
             
             % Generate the corresponding Y matrix
-            Y = zeros(size(X, 1), 2);
+            Y = zeros(size(X, 1), numClasses);
             Y(:, class) = 1;
             
             % Write X and Y to csv
